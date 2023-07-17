@@ -1,0 +1,450 @@
+***************************************************************************************************
+REACT COMPONENT
+***************************************************************************************************
+Component là hoạt động như function độc lập và trả về HTML elements
+Tên của React component PHẢI bắt đầu bằng uppercase
+--------------------------------------------------------------------------------
+* Có 2 loại component:
+---------------------------------------------
++ Class component:
+--> extends React.Component
+--> phải có hàm render() trả về html
+Vd:
+  class Car extends React.Component {
+    render() {
+      return <h2>Hi, I am a Car!</h2>;
+    }
+  }
+---------------------------------------------
++ Function component:
+--> Chức năng cũng giống class component nhưng mà ít code hơn
+Vd:
+  function Car() {
+    return <h2>Hi, I am a Car!</h2>;
+  }
+--------------------------------------------------------------------------------
++ Cách dùng component:
+--> Dùng như 1 html element <Car />
+Vd: 
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Car />);
+--------------------------------------------------------------------------------
++ Props (Properties)
+Các component có thể truyền các tham số vào như truyền properties vào html element vậy
+mặc định là chữ Props
+Vd:
+  function Car(props){
+      return <h2> I am a {props.color} Car! </h2>
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Car color="red" />)
+--------------------------------------------------------------------------------
+
++ Có thể dùng component bên trong một component khác
+--> React khuyên là nên chia file ra
+--> Tên file cũng bắt đầu bằng uppercase
+CỨ ĐỊNH NGHĨA COMPONENT XONG RỒI EXPORT RA LÀ OK
+-> Xem file Car.js
+Xong nếu muốn xài thì import vào thôi
+import Car from './Car.js'
+--------------------------------------------------------------------------------
+CLASS COMPONENT
++ Có vẻ như bây giờ người ta dùng Function Component nhiều hơn 
+so với Class component
+--> Class component có truyền props vô ở trong biến state á hoặc dùng props cũng được
+Vd:
+  class Car extends React.Component {
+    
+    // Đối với state
+    constructor() {
+      super();
+      this.state = {color: "red"};
+    }
+    render() {
+      return <h2>I am a {this.state.color} Car!</h2>;
+    }
+
+    // Đối với props
+      constructor(props){
+          super(props)
+      }
+    render() {
+      return <h2>I am a {this.props.color} Car!</h2>;
+    }
+
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Car color="red"/>);
+---------------------------------------------
+* React class component state
+--> state là nơi chứa các properties của class component
+Khi state thay đổi thì component nó cũng render lại :V
+--> Chỗ constructor thì khai báo tất cả các props muốn dùng
+Vd:
+class Car extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      brand: "Ford",
+      model: "Mustang",
+      color: "red",
+      year: 1964
+    };
+  }
+  render() {
+    return (
+      <div>
+        <h1>My {this.state.brand}</h1>
+        <p>
+          It is a {this.state.color}
+          {this.state.model}
+          from {this.state.year}.
+        </p>
+      </div>
+    );
+  }
+}
+--> Để thay đổi state, dùng hàm this.setState() method
+----------------------------------------------------------------------
+* Vòng đời của một component:
+Mounting --> Update --> Unmounting
+---------------------------------------------
+1. Mounting
+Có các hàm sẵn sau:
+--------------------------------
+1.1. constructor() (optional)
+- Được gọi đầu tiên khi tạo component, khởi tạo các props
+--------------------------------
+1.2. getDerivedStateFromProps() (optional)
+- Được gọi trước khi gọi hàm render(), dùng để set state dựa vào initial props
+- Truyền vào state, trả về một object đã update state
+Vd:
+  /
+  class Header extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {favoritecolor: "red"};
+    }
+    static getDerivedStateFromProps(props, state) {
+      return {favoritecolor: props.favcol };
+    }
+    render() {
+      return (
+        <h1>My Favorite Color is {this.state.favoritecolor}</h1>
+      );
+    }
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Header favcol="yellow"/>);
+  /
+--------------------------------
+1.3. render() (required)
+Bắt buộc gọi
+--------------------------------
+1.4. componentDidMount() (optional)
+Chạy sau khi render được gọi
+Có thể thực hiện các update ở đây
+  class Header extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {favoritecolor: "red"};
+    }
+    componentDidMount() {
+      setTimeout(() => {
+        this.setState({favoritecolor: "yellow"})
+      }, 1000)
+    }
+    // Lúc đầu là màu đỏ, sau 1s thì chuyển thành màu vàng :V
+    render() {
+      return (
+        <h1>My Favorite Color is {this.state.favoritecolor}</h1>
+      );
+    }
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Header />);
+---------------------------------------------
+2. Update
+Dùng để đổi state hoặc props
+Có 5 hàm sẵn:
+--------------------------------
+2.1. getDerivedStateFromProps() (optional)
+Là hàm được gọi đầu tiên khi update 
+Nên có khi update nên cẩn thận, nó sẽ chạy sau khi có thuộc tính nào đó được update,
+nên có khi hàm update ko có hiệu quả :v 
+Vd:
+  class Header extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {favoritecolor: "red"};
+    }
+    static getDerivedStateFromProps(props, state) {
+      return {favoritecolor: props.favcol };
+    }
+    changeColor = () => {
+      this.setState({favoritecolor: "blue"});
+    }
+    render() {
+      return (
+        <div>
+        <h1>My Favorite Color is {this.state.favoritecolor}</h1>
+        <button type="button" onClick={this.changeColor}>Change color</button>
+        </div>
+      );
+    }
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Header favcol="yellow" />);
+--------------------------------
+2.2. shouldComponentUpdate() (optional)
+Đánh dấu là element có được update hay là không (mặc định là true)
+  class Header extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {favoritecolor: "red"};
+    }
+    shouldComponentUpdate() {
+      return true;
+    }
+    changeColor = () => {
+      this.setState({favoritecolor: "blue"});
+    }
+    render() {
+      return (
+        <div>
+        <h1>My Favorite Color is {this.state.favoritecolor}</h1>
+        <button type="button" onClick={this.changeColor}>Change color</button>
+        </div>
+      );
+    }
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Header />);
+--------------------------------
+2.3. render() (required)
+--------------------------------
+2.4. getSnapshotBeforeUpdate() (optional)
+Dùng để truy cập các props và state trước khi thực hiện update
+Nếu gọi hàm này, phải gọi luôn hàm componentDidUpdate(), nếu ko sẽ bị báo lỗi
+Vd:
+  class Header extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {favoritecolor: "red"};
+    }
+    componentDidMount() {
+      setTimeout(() => {
+        this.setState({favoritecolor: "yellow"})
+      }, 1000)
+    }
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+      document.getElementById("div1").innerHTML =
+      "Before the update, the favorite was " + prevState.favoritecolor;
+    }
+    componentDidUpdate() {
+      document.getElementById("div2").innerHTML =
+      "The updated favorite is " + this.state.favoritecolor;
+    }
+    render() {
+      return (
+        <div>
+          <h1>My Favorite Color is {this.state.favoritecolor}</h1>
+          <div id="div1"></div>
+          <div id="div2"></div>
+        </div>
+      );
+    }
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Header />);
+  /
+
+2.5. componentDidUpdate() (optional)
+Được gọi sau khi component được update
+---------------------------------------------
+3. Unmounting
+Xóa component khỏi dom
+--------------------------------
+3.1. componentWillUnmount()
+Sẽ được gọi khi component sắp bị xóa khỏi dom
+Xóa là kiểu, component sẽ bị biến mất khi render 1 component nào đó lại á
+
+***************************************************************************************************
+REACT PROPS
+***************************************************************************************************
+Là mấy cái được pass vô React component
+---------------------------------------------------------------------------------------------------
+* Truyền vô component:
+const myElement = <Car brand="Ford">
+
+* Dùng props trong component:
+function Car(props){
+  return <h2> I am a {props.brand} </h2>
+}
+---------------------------------------------
+! Nếu truyền vô không phải dạng string (1 biến ko phải kiểu string), 
+thì bỏ tên biến vô ngoặc nhọn là được.
+
+  function Car(props) {
+  return <h2>I am a { props.brand.model }!</h2>;
+  }
+  function Garage() {
+    const carInfo = { name: "Ford", model: "Mustang" };
+    return (
+      <>
+        <h1>Who lives in my garage?</h1>
+        <Car brand={ carInfo } />
+      </>
+    );
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Garage />);
+---------------------------------------------------------------------------------------------------
+* Props là read-only, ko thể sửa
+***************************************************************************************************
+REACT EVENTS
+***************************************************************************************************
+Là kiểu mấy cái events như html: click, change, mouseover, ...
+---------------------------------------------------------------------------------------------------
+    React            |           HTML
+  ----------------------------------------------
+  onClick            |          onclick              
+  onClick= {shoot}   |          onclick="shoot()"
+Vd:
+
+function Football(){
+  const shoot = () => {
+    alert("Great Shot!");
+  }
+
+  return <button onClick={shoot}> Take the shot! </button>
+}
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Football />);
+---------------------------------------------------------------------------------------------------
+Pass tham số vô hàm thì dùng arrow function
+  function Football() {
+    const shoot = (a) => {
+      alert(a)
+    }
+    return (
+      <button onClick={()=> shoot("Goal!")}> Take the shot! </button>
+    )
+    }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Football />);
+---------------------------------------------------------------------------------------------------
+React Event object
+* Event handlers (Kiểu như bộ xử lý event) có quyền truy cập vào react event gọi cái hàm
+Vd:   
+  function Football() {
+    const shoot = (a, b) => {
+      alert(b.type);
+      /*
+      'b' represents the React event that triggered the function,
+      in this case the 'click' event
+      */
+    }
+    return (
+      <button onClick={(event) => shoot("Goal!", event)}>Take the shot!</button>
+    );
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Football />);
+***************************************************************************************************
+REACT CONDITIONAL RENDERING
+***************************************************************************************************
+À kiểu như nếu ĐK thì return A Else return B
+---------------------------------------------------------------------------------------------------
+1. Dùng If
+Vd: Có 2 component:
+  function MissedGoal() {
+    return <h1>MISSED!</h1>;
+  }
+
+  function MadeGoal() {
+    return <h1>Goal!</h1>;
+  }
+
+  function Goal(props) {
+  const isGoal = props.isGoal;
+  if (isGoal) {
+    return <MadeGoal/>;
+  }
+    return <MissedGoal/>;
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Goal isGoal={false} />);
+---------------------------------------------------------------------------------------------------
+2. Dùng Logical && Operator
+Nhúng JS vô đoạn html luôn
+Vd
+  function Garage(props){
+    const cars = props.cars
+    return(
+      <>
+        <h1>Garage</h1>
+        {cars.length > 0 &&
+          <h2>You have {cars.length} in your garage. </h2>
+        }
+      </h1>
+      </>
+    )
+  }
+  const cars = ['Ford', 'BMW', 'Audi']
+  const root = ReactDOM.createRoot(document.getElementById('root'))
+  root.render(<Garage cars={cars} />)
+---------------------------------------------------------------------------------------------------
+3. Dùng Ternary Operator
+Dùng toán tử bậc 3 á : condition ? true : false
+  function Goal(props){
+    const isGoal = props.isGoal
+    return (
+      <>
+      { isGoal ? <MadeGoal/> : <MissedGoal>}
+      </>
+    )
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Goal isGoal={false} />);
+***************************************************************************************************
+REACT LISTS
+***************************************************************************************************
+Dùng map để áp dụng function cho từng item trong LISTS
+Vd:
+  function Car(props) {
+    return <li>I am a { props.brand }</li>;
+  }
+
+  function ListCar(props){
+    const cars = ['Ford', 'ADA', 'Audi']
+    return(
+      <ul>
+        {cars.map((car)=><Car brand={car}/>)}
+      </ul>
+    )
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<Garage />);
+-----------------------------------------
+* Ỏ, nếu code như trên thì nó sẽ báo lỗi, vì nó cần key để phân biệt các component,
+nên cần khai báo thêm key nữa.
+Vd:
+  function Garage() {
+    const cars = [
+      {id: 1, brand: 'Ford'},
+      {id: 2, brand: 'BMW'},
+      {id: 3, brand: 'Audi'}
+    ];
+    return (
+      <>
+        <h1>Who lives in my garage?</h1>
+        <ul>
+          {cars.map((car) => <Car key={car.id} brand={car.brand} />)}
+        </ul>
+      </>
+    );
+  }
